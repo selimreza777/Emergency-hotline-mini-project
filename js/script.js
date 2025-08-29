@@ -1,98 +1,93 @@
-// script.js
+// --------------------
+// Initial Counters
+// --------------------
+let heartCount = 0;
+let copyCount = 0;
+let coins = 100;
 
-// DOM Elements
-const cardList = document.getElementById("cardList");
-const heartBtn = document.getElementById("heartBtn");
-const heartCountEl = document.getElementById("heartCount");
-const coinCountEl = document.getElementById("coinCount");
+// --------------------
+// Navbar Elements
+// --------------------
+const heartCounter = document.getElementById("heartCount");
+const copyCounter = document.getElementById("copyCount");
+const coinCounter = document.getElementById("coinCount");
+
+// History
 const historyList = document.getElementById("historyList");
 const clearHistoryBtn = document.getElementById("clearHistory");
 
-// State
-let coins = 100;
-let hearts = 0;
-let callHistory = [];
+// --------------------
+// Helper Functions
+// --------------------
 
-coinCountEl.textContent = coins;
-heartCountEl.textContent = hearts;
-
-// Load services
-const services = JSON.parse(cardList.dataset.services);
-
-// Render cards
-function renderCards() {
-  cardList.innerHTML = "";
-  services.forEach(service => {
-    const card = document.createElement("div");
-    card.className = "relative bg-[#141B3A] rounded-2xl p-4 flex flex-col items-center gap-2 hover:bg-[#1F2945] transition";
-
-    // Card image top
-    const img = document.createElement("img");
-    img.src = service.icon;
-    img.alt = service.nameEn;
-    img.className = "h-16 w-16 mt-2";
-    card.appendChild(img);
-
-    // Card love icon top-right
-    const loveBtn = document.createElement("button");
-    loveBtn.innerHTML = "❤️";
-    loveBtn.className = "absolute top-2 right-2 text-lg";
-    loveBtn.addEventListener("click", () => {
-      hearts++;
-      heartCountEl.textContent = hearts;
-    });
-    card.appendChild(loveBtn);
-
-    // Service name & number
-    const title = document.createElement("h4");
-    title.className = "font-semibold mt-2";
-    title.textContent = service.nameBn;
-    card.appendChild(title);
-
-    const numberP = document.createElement("p");
-    numberP.className = "opacity-80 flex justify-between w-full mt-1";
-    numberP.innerHTML = `<span>${service.number}</span>`;
-    card.appendChild(numberP);
-
-    // Call button
-    const callBtn = document.createElement("button");
-    callBtn.textContent = "Call";
-    callBtn.className = "bg-blue-600 px-3 py-1 rounded-lg text-sm hover:bg-blue-500 mt-2 w-full";
-    callBtn.dataset.number = service.number;
-
-    callBtn.addEventListener("click", () => {
-      if (coins >= 20) {
-        coins -= 20;
-        coinCountEl.textContent = coins;
-        callHistory.unshift(service.number);
-        renderHistory();
-      } else {
-        alert("Not enough coins to call!");
-      }
-    });
-
-    card.appendChild(callBtn);
-
-    cardList.appendChild(card);
-  });
+// Add heart
+function addHeart() {
+  heartCount++;
+  heartCounter.textContent = heartCount;
 }
 
-// Render history
-function renderHistory() {
-  historyList.innerHTML = "";
-  callHistory.forEach(num => {
-    const li = document.createElement("li");
-    li.className = "bg-slate-100 text-black rounded-lg p-2";
-    li.textContent = num;
-    historyList.appendChild(li);
-  });
+// Call a service
+function makeCall(service, number) {
+  if (coins < 20) {
+    alert("Not enough coins to make a call!");
+    return;
+  }
+  coins -= 20;
+  coinCounter.textContent = coins;
+  alert(`Calling ${service} at ${number}`);
+  addToHistory(service, number);
 }
 
-// Clear history
-clearHistoryBtn.addEventListener("click", () => {
-  callHistory = [];
-  renderHistory();
+// Add entry to history with time
+function addToHistory(action, number) {
+  const now = new Date();
+  const time = now.toLocaleTimeString(); // hh:mm:ss AM/PM
+  const li = document.createElement("li");
+  li.textContent = `${action} - ${number} (at ${time})`;
+  li.className = "bg-[#f5fff6] px-3 py-2 rounded shadow text-sm";
+  historyList.prepend(li); // newest on top
+}
+
+// Copy number (no history)
+function copyNumber(number) {
+  navigator.clipboard.writeText(number);
+  copyCount++;
+  copyCounter.textContent = copyCount;
+}
+
+// --------------------
+// Card Events
+// --------------------
+const cards = [
+  { cardId: "cardEmergency", name: "National Emergency", numberId: "numberEmergency" },
+  { cardId: "cardPolice", name: "Police Helpline", numberId: "numberPolice" },
+  { cardId: "cardAmbulance", name: "Ambulance", numberId: "numberAmbulance" },
+  { cardId: "cardFire", name: "Fire Service", numberId: "numberFire" },
+  { cardId: "cardWomen", name: "Women & Child Helpline", numberId: "numberWomen" },
+  { cardId: "cardCorruption", name: "Anti-Corruption", numberId: "numberCorruption" }
+];
+
+cards.forEach(card => {
+  const cardEl = document.getElementById(card.cardId);
+
+  // Heart
+  cardEl.querySelector(".fa-heart").addEventListener("click", addHeart);
+
+  // Copy
+  cardEl.querySelector(`[id^="copy"]`).addEventListener("click", () => {
+    copyNumber(document.getElementById(card.numberId).textContent);
+  });
+
+  // Call
+  cardEl.querySelector(`[id^="call"]`).addEventListener("click", () => {
+    const number = document.getElementById(card.numberId).textContent;
+    makeCall(card.name, number);
+  });
 });
 
-// Initial render
-renderCards();
+// --------------------
+// Clear History Button
+// --------------------
+clearHistoryBtn.addEventListener("click", () => {
+  historyList.innerHTML = "";
+});
