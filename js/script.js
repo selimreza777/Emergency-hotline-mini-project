@@ -12,7 +12,7 @@ const heartCounter = document.getElementById("heartCount");
 const copyCounter = document.getElementById("copyCount");
 const coinCounter = document.getElementById("coinCount");
 
-// History
+// History Elements
 const historyList = document.getElementById("historyList");
 const clearHistoryBtn = document.getElementById("clearHistory");
 
@@ -20,35 +20,35 @@ const clearHistoryBtn = document.getElementById("clearHistory");
 // Helper Functions
 // --------------------
 
-// Add heart
+// Add heart count
 function addHeart() {
   heartCount++;
   heartCounter.textContent = heartCount;
 }
 
-// Call a service
-function makeCall(service, number) {
+// Make a call
+function makeCall(serviceName, number) {
   if (coins < 20) {
     alert("Not enough coins to make a call!");
     return;
   }
   coins -= 20;
   coinCounter.textContent = coins;
-  alert(`Calling ${service} at ${number}`);
-  addToHistory(service, number);
+  alert(`Calling ${serviceName} at ${number}`);
+  addToHistory(serviceName, number);
 }
 
-// Add entry to history with time
-function addToHistory(action, number) {
+// Add entry to history
+function addToHistory(serviceName, number) {
   const now = new Date();
   const time = now.toLocaleTimeString(); // hh:mm:ss AM/PM
   const li = document.createElement("li");
-  li.textContent = `${action} - ${number} (at ${time})`;
+  li.textContent = `${serviceName} - ${number} (at ${time})`;
   li.className = "bg-[#f5fff6] px-3 py-2 rounded shadow text-sm";
-  historyList.prepend(li); // newest on top
+  historyList.prepend(li); // newest first
 }
 
-// Copy number (no history)
+// Copy number to clipboard
 function copyNumber(number) {
   navigator.clipboard.writeText(number);
   copyCount++;
@@ -56,32 +56,35 @@ function copyNumber(number) {
 }
 
 // --------------------
-// Card Events
+// Card Definitions
 // --------------------
 const cards = [
-  { cardId: "cardEmergency", name: "National Emergency", numberId: "numberEmergency" },
-  { cardId: "cardPolice", name: "Police Helpline", numberId: "numberPolice" },
-  { cardId: "cardAmbulance", name: "Ambulance", numberId: "numberAmbulance" },
-  { cardId: "cardFire", name: "Fire Service", numberId: "numberFire" },
-  { cardId: "cardWomen", name: "Women & Child Helpline", numberId: "numberWomen" },
-  { cardId: "cardCorruption", name: "Anti-Corruption", numberId: "numberCorruption" }
+  { id: "Emergency", name: "National Emergency", number: "999" },
+  { id: "Police", name: "Police Helpline", number: "999" },
+  { id: "Ambulance", name: "Ambulance", number: "108" },
+  { id: "Fire", name: "Fire Service", number: "999" },
+  { id: "Women", name: "Women & Child Helpline", number: "109" },
+  { id: "Corruption", name: "Anti-Corruption", number: "106" }
 ];
 
+// --------------------
+// Add Events to Cards
+// --------------------
 cards.forEach(card => {
-  const cardEl = document.getElementById(card.cardId);
-
   // Heart
-  cardEl.querySelector(".fa-heart").addEventListener("click", addHeart);
+  const heartBtn = document.querySelector(`#card${card.id} .fa-heart`);
+  heartBtn?.addEventListener("click", addHeart);
 
   // Copy
-  cardEl.querySelector(`[id^="copy"]`).addEventListener("click", () => {
-    copyNumber(document.getElementById(card.numberId).textContent);
+  const copyBtn = document.getElementById(`copy${card.id}`);
+  copyBtn?.addEventListener("click", () => {
+    copyNumber(card.number);
   });
 
   // Call
-  cardEl.querySelector(`[id^="call"]`).addEventListener("click", () => {
-    const number = document.getElementById(card.numberId).textContent;
-    makeCall(card.name, number);
+  const callBtn = document.getElementById(`call${card.id}`);
+  callBtn?.addEventListener("click", () => {
+    makeCall(card.name, card.number);
   });
 });
 
