@@ -34,19 +34,22 @@ function makeCall(serviceName, number) {
   }
   coins -= 20;
   coinCounter.textContent = coins;
-  alert(`Calling ${serviceName} at ${number}`);
+  alert(`Calling ${serviceName} at  ${number}`);
   addToHistory(serviceName, number);
+
 }
 
 // Add entry to history
-function addToHistory(serviceName, number) {
-  const now = new Date();
-  const time = now.toLocaleTimeString(); // hh:mm:ss AM/PM
-  const li = document.createElement("li");
-  li.textContent = `${serviceName} - ${number} (at ${time})`;
-  li.className = "bg-[#f5fff6] px-3 py-2 rounded shadow text-sm";
-  historyList.prepend(li); // newest first
+function addToHistory(name, num) {
+  let li = document.createElement("li")
+  li.className = "bg-[#fafafa] px-3 py-2 rounded shadow text-sm"
+  li.innerHTML = `<div class="flex justify-between">
+      <div><p class="font-bold">${name}</p><p class="text-xs">${num}</p></div>
+      <span class="text-sm text-black-500">${new Date().toLocaleTimeString()}</span>
+    </div>`
+  historyList.prepend(li)
 }
+
 
 // Copy number to clipboard
 function copyNumber(number) {
